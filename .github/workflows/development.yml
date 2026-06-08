@@ -34,7 +34,7 @@ jobs:
 
       - name: Install build tools
         run: |
-          brew install make ldid
+          brew install make ldid wget
           brew install --cask temurin@8
 
       - name: Set up Java 8
@@ -87,9 +87,16 @@ jobs:
           git push
 
       - name: Build for ${{ matrix.platform_name }}
+        shell: bash
         run: |
+          set -euxo pipefail
           export PATH=/opt/homebrew/bin:$PATH
           export SLIMMED=1
+          gmake --version
+          cmake --version
+          xcodebuild -version
+          ldid -v
+          wget --version
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
             gmake -j1 java PLATFORM=${{ matrix.platform }}
             gmake -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }}
